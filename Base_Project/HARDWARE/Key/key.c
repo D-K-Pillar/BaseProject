@@ -83,6 +83,12 @@ void keyStaticDetect(KeyInformation *pKeyInformation)	//按键检测
 			case 5:
 				
 			break;			
+
+			case 6:
+				/* 等待按键松手状态 */
+				if(((KeyStatus&(pKeyInformation->cwKeyNum)) != pKeyInformation->cwKeyNum)) 
+					pKeyInformation->cwKeyPressStatus = 0;
+			break;
 			
 			default:
 				pKeyInformation->cwKeyPressStatus = 0;//按键异常 转换为未按下状态
@@ -93,6 +99,97 @@ void keyStaticDetect(KeyInformation *pKeyInformation)	//按键检测
 
 	}
 }
+
+
+/*
+ *	@brief Input statue what do you need,if get it,return 1 else return 0
+ *
+ *  @param pKeyInformation key's struct
+ *	@param KeyPressStatus  key's status 
+ *
+ *	@retval 1 ok , 0  none.
+ */
+unsigned char  HowToUseKey(KeyInformation *pKeyInformation , unsigned char KeyPressStatus)
+{
+	/*  按键状态 0-未按下            1-消抖中
+				 2-判断为短按      3-判断为长按 	
+				 4-短按松手		  5-长按松手
+				 
+		KeyPressStatus = 1 短按 
+						 2 长按
+						 4 短按松手
+						 8 长按松手
+		
+	*/
+	unsigned char status = 0x00;
+
+	if(KeyPressStatus == NOKEY){
+		/* */
+		if(pKeyInformation->cwKeyPressStatus == 0){
+			status = 1;
+		}else{
+//			if(pKeyInformation->cwKeyPressStatus != 1)
+//				pKeyInformation->cwKeyPressStatus = 0;
+		}
+	}
+
+	
+	if((KeyPressStatus & KEY_LONGFREED) == KEY_LONGFREED){
+		/* 长按松手处理 */
+		if( pKeyInformation->cwKeyPressStatus == 5 ){
+			pKeyInformation->cwKeyPressStatus = 0;
+			status = 1;
+		}else if( pKeyInformation->cwKeyPressStatus == 4 ){
+			pKeyInformation->cwKeyPressStatus = 0;
+		}
+	} 
+ 
+	if((KeyPressStatus & KEY_SHORTFREED) == KEY_SHORTFREED){
+		/* 短按松手处理 */
+		if( pKeyInformation->cwKeyPressStatus == 4 ){
+			pKeyInformation->cwKeyPressStatus = 0;
+			status = 1;
+		}else if( pKeyInformation->cwKeyPressStatus == 5 ){
+			pKeyInformation->cwKeyPressStatus = 0;
+		}
+	}
+
+	
+	if((KeyPressStatus & KEY_LONG) == KEY_LONG){
+		/* 长按处理 */
+		if( pKeyInformation->cwKeyPressStatus == 3 ){
+			pKeyInformation->cwKeyPressStatus = 0;
+			status = 1;
+		}else if( pKeyInformation->cwKeyPressStatus > 3 ){
+			pKeyInformation->cwKeyPressStatus = 0;
+		}
+	}
+
+	if((KeyPressStatus & KEY_SHORT) == KEY_SHORT){
+		/* 短按处理 */
+		if( pKeyInformation->cwKeyPressStatus == 2 ){
+			pKeyInformation->cwKeyPressStatus = 0;
+			status = 1;
+		}else if( pKeyInformation->cwKeyPressStatus > 2 ){
+			pKeyInformation->cwKeyPressStatus = 0;
+		}
+	}
+	
+	if(status == 1)
+		return 1;
+	
+	return 0;
+	
+}
+
+
+/*
+ *	@brief Init key's hardware
+ *
+ *  @param None
+ *
+ *	@retval None
+ */
 
 
 void KeyInit(void)

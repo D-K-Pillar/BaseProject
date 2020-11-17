@@ -35,31 +35,29 @@ void RunPage_Task(void* parameter)
 				DisplayNum(RTData[0],2);	//显示实时力值
 			
 			
-				if(pKey2Information->cwKeyPressStatus == 3 && pKey1Information->cwKeyPressStatus == 0){	//长按K2清零
-					UserData[6] += FADNew;
-					pKey2Information->cwKeyPressStatus = 0;
-					writeToFlash(UserData,50);
-				}else if(pKey2Information->cwKeyPressStatus >= 4){
-					pKey2Information->cwKeyPressStatus = 0;
+				if( HowToUseKey(pKey1Information  , NOKEY) ){	//长按K2清零
+					if( HowToUseKey(pKey2Information  , KEY_LONG) ){
+						UserData[6] += FADNew;
+						writeToFlash(UserData,50);
+					}
 				}
 				
-				if(pKey1Information->cwKeyPressStatus == 3 && pKey2Information->cwKeyPressStatus == 0){	//长按K1进入校准界面
-					RTData[40] = 1; 						
-					wWaitTime = systemTime.ibastTime; 
-					cwchar[3] = 0x0C; cwchar[4] = 0x0A; cwchar[5] = 0x12;
-					RTData[21] = RTData[0];
-					Display1621(cwchar,5);
-					pKey1Information->cwKeyPressStatus = 0;
+				if( HowToUseKey(pKey2Information  , NOKEY) ){	//长按K1进入校准界面
+					if( HowToUseKey(pKey1Information  , KEY_LONG) ){
+						RTData[40] = 1; 						
+						wWaitTime = systemTime.ibastTime; 
+						cwchar[3] = 0x0C; cwchar[4] = 0x0A; cwchar[5] = 0x12;
+						RTData[21] = RTData[0];
+						Display1621(cwchar,5);
+					}
 					
-				}else if(pKey1Information->cwKeyPressStatus >= 4){
-					pKey1Information->cwKeyPressStatus = 0;
 				}
 				
-				if(pKey1Information->cwKeyPressStatus == 3 && pKey2Information->cwKeyPressStatus == 3){
-					//K1  K2同时长按
-					PBout(15)^=1;
-					pKey1Information->cwKeyPressStatus = 0;
-					pKey2Information->cwKeyPressStatus = 0;
+				if( HowToUseKey(pKey1Information  , KEY_LONG) ){
+					if(HowToUseKey(pKey2Information  , KEY_LONG)){
+						//K1  K2同时长按
+						PBout(15)^=1;
+					}
 				}
 				
 			break;

@@ -158,6 +158,140 @@ void Num_Input(int32_t InDmin,u32 InDmax,u8 dot)
 
 
 
+/*
+ * @brief 数字输入函数
+ * @param 
+ * @retval None
+ */
+//const uint32_t MAXNN[]={1,10,100,1000,10000,100000,1000000,10000000,100000000,1000000000};
+
+void InputNum(int Min , int Max , unsigned char len , unsigned char dot , int InputNumber)
+{
+	static int LChangeNum   = 0;	//要修改的数字
+	static int LOperateStep = 0;	//操作步数 0：接收输入数字 1:开始修改数字
+	static unsigned char cwCursor    = 0;   	//光标位置-当前修改位
+	static unsigned char cwCursorNum = 0;   	//当前修改位值
+	static unsigned char cwDataLen   = 0;		//数据长度
+	static unsigned int  cwDataMultiple = 0;	//当前位数据倍率
+	
+	int i = 0;
+
+	//DisplayNumber()
+
+	switch(LOperateStep)
+	{
+		case 0:
+		{
+			LChangeNum = InputNumber;
+			cwDataLen = len;
+
+			cwCursor		= 0;	//光标在最左边
+			cwCursorNum		= 0;	//光标处值为0
+
+			while(i < 10){	//计算数据最大位数
+				if(Max >= MAXNN[i])
+					i++;
+				else 
+					break;
+			}
+
+			cwDataLen = i;
+
+			LOperateStep++;	
+			break;
+		}
+
+		case 1:
+		{
+			cwDataMultiple = (MAXNN[cwDataLen-cwCursor]);	/* 计算当前位置倍率 */
+			if(LChangeNum >= 0)
+				cwCursorNum = (LChangeNum % cwDataMultiple)/(cwDataMultiple / 10);
+			else
+				cwCursorNum = ((-LChangeNum) % cwDataMultiple)/(cwDataMultiple / 10);
+
+			cwDataMultiple /= 10;
+
+			LOperateStep++;	
+			break;	
+		}
+
+		case 2:
+		{
+			if(cwCursor == 0 && LChangeNum < 0){
+				//在此位置显示负号
+			}else{
+
+
+			}
+			
+			LOperateStep++;	
+		}
+
+		case 3:		//按键处理
+		{
+			if(1){	//+键按下
+			
+				if(LChangeNum > 0) 
+					LChangeNum -= cwDataMultiple*cwCursorNum;
+				else
+					LChangeNum += cwDataMultiple*cwCursorNum;
+
+				cwCursorNum++;
+
+				if(cwDataLen != 0 && cwCursor == 0){	//最高位处理
+					
+					i =  cwDataMultiple*cwCursorNum;
+
+					if( LChangeNum < 0){
+						LChangeNum = -LChangeNum;
+						cwCursorNum = 0;
+						i = 0;
+					}
+
+					if(i > Max){
+						if(Min >= 0){
+							i = 0;
+							cwCursorNum = 0;
+						}else{
+							i = 0;
+							LChangeNum = -LChangeNum;
+							cwCursorNum = 0;	
+						}
+					}
+				}else{
+					cwCursorNum %= 10;
+					i = cwDataMultiple*cwCursorNum;
+				}
+
+				if(LChangeNum >= 0)
+					LChangeNum += i;
+				else
+					LChangeNum -= i;
+
+				LOperateStep = 2;	//跳转至第二步进行显示
+				
+			
+			}
+
+			if(1){			//右移按键按下
+				cwCursor++;
+				if(cwCursor>=cwDataLen)
+					cwCursor=0;
+				
+			}
+
+			break;
+		}
+	}
+}
+
+
+
+
+
+
+
+
 
 
 

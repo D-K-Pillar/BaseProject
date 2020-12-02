@@ -277,8 +277,12 @@ void DisplayNum(int num , unsigned dot)
 {
 	unsigned char cwchar[6]={0,0,0,0,0,0};
 	u8 b[6];
-	u8 j=0,k=0,m;
+	u8 j=0,k=0;
 	int i;
+	
+	//DisplayNumber(num , dot ,  6 ,  0 );
+	
+	
 	
 	if(num>999999)
 		num=999999;
@@ -341,6 +345,89 @@ void DisplayNum(int num , unsigned dot)
 	}
 	Display1621(cwchar,i);
 }
+
+
+
+unsigned char ShowRsrcs[10] = {0};
+
+/*
+ * @brief 将数字转换为字符数组
+ * @param Number  要显示的数字
+ * @param dot     显示的小数点
+ * @param len	  显示长度
+ * @param mode 	  显示模式 0 - 空位填0 ， 1 - 空位不显示，用字符 * 表示
+ * @param display 接收转换后数据的数组
+ * @retval None
+ */
+
+unsigned char display[10] = {0};
+
+
+void DisplayNumber(int Number , unsigned char dot ,  unsigned char len , unsigned char mode , unsigned char *display)
+{
+	int i, j = 0; //循环参数
+	int num ; //保留Number
+	//空位填0的情况用于参数修改，若Number为负数，那么len位置显示负数的符号位
+	//空位不显示用于实时值情况，若Number为负数，那么在这个数的最高位显示符号位
+	for( i = 0  ; i < len ; i++)
+		display[i] = 0;
+	
+	num = Number;
+	
+	if(num < 0)
+		num = -num;
+	
+	for(i = 0 ; i < len ; i++){			//整型数转字符数,数组0对应个位，数组1对应十位，依次往左类推
+		if(num != 0){					//判断是否被除完
+			display[i] = num%10;
+			num/=10;
+		}else{							//数据已经被整除
+		
+			if( 0 == mode){				//模式0处理
+				if(dot < i){			//如果小数点的位置，在该位置之后，才能显示负号
+					display[i] = 0;
+				}
+			}else{						//模式1处理
+			
+				if(dot < i){			//如果小数点的位置，在该位置之后，才能显示负号
+					display[i] = '*';
+
+					if(0 == j)
+						j = i;//记录负号位置
+				}
+
+			}
+		}
+	}
+
+	if(Number < 0){
+		if(0 == mode)
+			display[len-1] = '-';
+		else{
+			if(j < i+1)
+				display[len-1] = '-';
+			else
+				display[j] = '-';
+		}
+	}
+	for(i = 0 ; i < len ; i++){
+		if(i==(5-dot)&&dot!=0){
+			break;
+		}
+	}
+
+	if(dot >= 20){/* 闪烁 */
+		display[dot-20] = 16;
+		i = 5;
+	}
+
+	//Display1621(display,i);
+}
+
+
+
+
+
 
 
 

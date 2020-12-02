@@ -40,7 +40,7 @@ void TM1621_init(void);
 void WriteAllData(uchar Addr,uchar *p,uchar cnt);
 void Display1621(unsigned char * bmp , unsigned char dot);
 void DisplayNum(int num , unsigned dot);
-
+//void DisplayNumber(int Number , unsigned char dot ,  unsigned char len , unsigned char mode );
 
 
 

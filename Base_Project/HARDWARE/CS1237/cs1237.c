@@ -119,7 +119,7 @@ void Read_AD(void)
 	int a,b;
 	int   c=0;
 	char   i=0;
-	static int test,num;
+	//static int test,num;
 	if(AD_In==0)
 	{
 
